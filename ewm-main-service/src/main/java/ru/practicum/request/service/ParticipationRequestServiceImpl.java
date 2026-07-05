@@ -128,6 +128,12 @@ public class ParticipationRequestServiceImpl implements ParticipationRequestServ
             throw new ConflictException("Пользователь id=" + userId + " не является инициатором события id=" + eventId);
         }
 
+        if (requestDto.getStatus() == RequestStatus.CONFIRMED
+                && event.getParticipantLimit() > 0
+                && event.getConfirmedRequests() >= event.getParticipantLimit()) {
+            throw new ConflictException("The participant limit has been reached");
+        }
+
         List<ParticipationRequest> requests = requestRepository.findByEventIdAndIdIn(eventId, requestDto.getRequestIds());
 
         List<ParticipationRequestDto> confirmed = new ArrayList<>();

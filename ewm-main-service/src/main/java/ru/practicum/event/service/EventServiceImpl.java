@@ -150,6 +150,10 @@ public class EventServiceImpl implements EventService {
                                                LocalDateTime rangeStart, LocalDateTime rangeEnd,
                                                Boolean onlyAvailable, String sort, int from, int size,
                                                HttpServletRequest request) {
+        if (rangeStart != null && rangeEnd != null && rangeStart.isAfter(rangeEnd)) {
+            throw new IllegalArgumentException("Дата начала rangeStart не может быть позже даты окончания rangeEnd");
+        }
+
         sendHit(request);
 
         Sort sorting = Sort.unsorted();
