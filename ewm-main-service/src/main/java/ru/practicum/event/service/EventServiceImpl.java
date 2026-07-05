@@ -25,7 +25,6 @@ import ru.practicum.user.model.User;
 import ru.practicum.user.repository.UserRepository;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -38,8 +37,6 @@ public class EventServiceImpl implements EventService {
     private final UserRepository userRepository;
     private final CategoryRepository categoryRepository;
     private final StatsClient statsClient;
-
-    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     @Override
     @Transactional
@@ -210,8 +207,15 @@ public class EventServiceImpl implements EventService {
     }
 
     private void sendHit(HttpServletRequest request) {
-        statsClient.saveHit(EndpointHitDto.builder().app("ewm-main-service").uri(request.getRequestURI())
-                .ip(request.getRemoteAddr()).timestamp(LocalDateTime.parse(LocalDateTime.now()
-                        .format(FORMATTER))).build());
+        try {
+            statsClient.saveHit(EndpointHitDto.builder()
+                    .app("ewm-main-service")
+                    .uri(request.getRequestURI())
+                    .ip(request.getRemoteAddr())
+                    .timestamp(LocalDateTime.now())
+                    .build());
+        } catch (Exception e) {
+            System.err.println("Ошибка отправки статистики: " + e.getMessage());
+        }
     }
 }
