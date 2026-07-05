@@ -184,8 +184,27 @@ public class EventServiceImpl implements EventService {
         }
 
         sendHit(request);
-        event.setViews(event.getViews() + 1);
-        return EventMapper.toEventFullDto(eventRepository.save(event));
+
+        EventFullDto dto = EventMapper.toEventFullDto(event);
+
+        try {
+            LocalDateTime start = event.getCreatedOn();
+            LocalDateTime end = LocalDateTime.now();
+            List<String> uris = List.of(request.getRequestURI());
+
+            var statsList = statsClient.getStats(start, end, uris, true);
+
+            if (statsList != null && !statsList.isEmpty()) {
+                dto.setViews(statsList.getFirst().getHits());
+            } else {
+                dto.setViews(1L);
+            }
+        } catch (Exception e) {
+            System.err.println("Ошибка при получении статистики: " + e.getMessage());
+            dto.setViews(1L);
+        }
+
+        return dto;
     }
 
     private void updateBaseEventFields(Event event, UpdateEventRequest request) {
