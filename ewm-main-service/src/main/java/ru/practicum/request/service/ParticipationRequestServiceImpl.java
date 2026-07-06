@@ -42,17 +42,7 @@ public class ParticipationRequestServiceImpl implements ParticipationRequestServ
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new NotFoundException("Событие с id=" + eventId + " не найдено"));
 
-        if (event.getInitiator().getId().equals(userId)) {
-            throw new ConflictException("Инициатор события не может добавить запрос на участие в своём событии");
-        }
-
-        if (event.getState() != State.PUBLISHED) {
-            throw new ConflictException("Нельзя участвовать в неопубликованном событии");
-        }
-
-        if (event.getParticipantLimit() > 0 && event.getConfirmedRequests() >= event.getParticipantLimit()) {
-            throw new ConflictException("У события достигнут лимит запросов на участие");
-        }
+        validateEventForNewRequest(event, userId);
 
         User requester = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("Пользователь с id=" + userId + " не найден"));
@@ -109,9 +99,7 @@ public class ParticipationRequestServiceImpl implements ParticipationRequestServ
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new NotFoundException("Событие с id=" + eventId + " не найдено"));
 
-        if (!event.getInitiator().getId().equals(userId)) {
-            throw new ConflictException("Пользователь id=" + userId + " не является инициатором события id=" + eventId);
-        }
+        validateEventInitiator(event, userId);
 
         return requestRepository.findByEventId(eventId).stream()
                 .map(ParticipationRequestMapper::toParticipationRequestDto)
@@ -124,15 +112,8 @@ public class ParticipationRequestServiceImpl implements ParticipationRequestServ
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new NotFoundException("Событие с id=" + eventId + " не найдено"));
 
-        if (!event.getInitiator().getId().equals(userId)) {
-            throw new ConflictException("Пользователь id=" + userId + " не является инициатором события id=" + eventId);
-        }
-
-        if (requestDto.getStatus() == RequestStatus.CONFIRMED
-                && event.getParticipantLimit() > 0
-                && event.getConfirmedRequests() >= event.getParticipantLimit()) {
-            throw new ConflictException("The participant limit has been reached");
-        }
+        validateEventInitiator(event, userId);
+        validateLimitForConfirmation(event, requestDto.getStatus());
 
         List<ParticipationRequest> requests = requestRepository.findByEventIdAndIdIn(eventId, requestDto.getRequestIds());
 
@@ -143,23 +124,7 @@ public class ParticipationRequestServiceImpl implements ParticipationRequestServ
             if (req.getStatus() != RequestStatus.PENDING) {
                 throw new ConflictException("Статус можно менять только у заявок, находящихся в состоянии ожидания");
             }
-
-            if (requestDto.getStatus() == RequestStatus.REJECTED) {
-                req.setStatus(RequestStatus.REJECTED);
-                requestRepository.save(req);
-                rejected.add(ParticipationRequestMapper.toParticipationRequestDto(req));
-            } else if (requestDto.getStatus() == RequestStatus.CONFIRMED) {
-                if (event.getParticipantLimit() > 0 && event.getConfirmedRequests() >= event.getParticipantLimit()) {
-                    req.setStatus(RequestStatus.REJECTED);
-                    requestRepository.save(req);
-                    rejected.add(ParticipationRequestMapper.toParticipationRequestDto(req));
-                } else {
-                    req.setStatus(RequestStatus.CONFIRMED);
-                    requestRepository.save(req);
-                    event.setConfirmedRequests(event.getConfirmedRequests() + 1);
-                    confirmed.add(ParticipationRequestMapper.toParticipationRequestDto(req));
-                }
-            }
+            processRequestStatus(req, event, requestDto.getStatus(), confirmed, rejected);
         }
         eventRepository.save(event);
 
@@ -167,5 +132,51 @@ public class ParticipationRequestServiceImpl implements ParticipationRequestServ
                 .confirmedRequests(confirmed)
                 .rejectedRequests(rejected)
                 .build();
+    }
+
+    private void validateEventForNewRequest(Event event, Long userId) {
+        if (event.getInitiator().getId().equals(userId)) {
+            throw new ConflictException("Инициатор события не может добавить запрос на участие в своём событии");
+        }
+        if (event.getState() != State.PUBLISHED) {
+            throw new ConflictException("Нельзя участвовать в неопубликованном событии");
+        }
+        if (event.getParticipantLimit() > 0 && event.getConfirmedRequests() >= event.getParticipantLimit()) {
+            throw new ConflictException("У события достигнут лимит запросов на участие");
+        }
+    }
+
+    private void validateEventInitiator(Event event, Long userId) {
+        if (!event.getInitiator().getId().equals(userId)) {
+            throw new ConflictException("Пользователь id=" + userId + " не является инициатором события id=" + event.getId());
+        }
+    }
+
+    private void validateLimitForConfirmation(Event event, RequestStatus targetStatus) {
+        if (targetStatus == RequestStatus.CONFIRMED
+                && event.getParticipantLimit() > 0
+                && event.getConfirmedRequests() >= event.getParticipantLimit()) {
+            throw new ConflictException("Достигнут лимит заявок на участие в данном событии");
+        }
+    }
+
+    private void processRequestStatus(ParticipationRequest req, Event event, RequestStatus targetStatus,
+                                      List<ParticipationRequestDto> confirmed, List<ParticipationRequestDto> rejected) {
+        if (targetStatus == RequestStatus.REJECTED) {
+            req.setStatus(RequestStatus.REJECTED);
+            requestRepository.save(req);
+            rejected.add(ParticipationRequestMapper.toParticipationRequestDto(req));
+        } else if (targetStatus == RequestStatus.CONFIRMED) {
+            if (event.getParticipantLimit() > 0 && event.getConfirmedRequests() >= event.getParticipantLimit()) {
+                req.setStatus(RequestStatus.REJECTED);
+                requestRepository.save(req);
+                rejected.add(ParticipationRequestMapper.toParticipationRequestDto(req));
+            } else {
+                req.setStatus(RequestStatus.CONFIRMED);
+                requestRepository.save(req);
+                event.setConfirmedRequests(event.getConfirmedRequests() + 1);
+                confirmed.add(ParticipationRequestMapper.toParticipationRequestDto(req));
+            }
+        }
     }
 }

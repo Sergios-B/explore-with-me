@@ -10,6 +10,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.event.dto.EventFullDto;
 import ru.practicum.event.dto.EventShortDto;
+import ru.practicum.event.model.EventSort;
 import ru.practicum.event.service.EventService;
 
 import java.time.LocalDateTime;
@@ -37,7 +38,7 @@ public class EventPublicController {
             @RequestParam(defaultValue = "10") @Positive int size,
             HttpServletRequest request) {
         log.info("Получен публичный запрос на поиск событий: text={}, categories={}, paid={}", text, categories, paid);
-        return eventService.getPublicEvents(text, categories, paid, rangeStart, rangeEnd, onlyAvailable, sort, from, size, request);
+        return eventService.getPublicEvents(text, categories, paid, rangeStart, rangeEnd, onlyAvailable, EventSort.valueOf(sort), from, size, request);
     }
 
     @GetMapping("/{id}")
