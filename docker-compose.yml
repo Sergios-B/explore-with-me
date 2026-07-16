@@ -1,6 +1,5 @@
-version: '3.8'
-
 services:
+  # База данных для сервиса статистики
   stats-db:
     image: postgres:16-alpine
     container_name: stats-db
@@ -16,6 +15,7 @@ services:
       timeout: 5s
       retries: 5
 
+  # Сервер статистики
   stats-server:
     build:
       context: ./ewm-stats-service
@@ -30,3 +30,38 @@ services:
     depends_on:
       stats-db:
         condition: service_healthy
+
+  # база данных для основного сервиса
+  main-db:
+    image: postgres:16-alpine
+    container_name: main-db
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_DB=ewm
+      - POSTGRES_USER=practicum
+      - POSTGRES_PASSWORD=password
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U practicum -d ewm"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # Контейнер основного сервиса (Имя изменено на ewm-service для тестов)
+  ewm-service:
+    build:
+      context: ./ewm-main-service
+      dockerfile: Dockerfile
+    container_name: ewm-service
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://main-db:5432/ewm
+      - SPRING_DATASOURCE_USERNAME=practicum
+      - SPRING_DATASOURCE_PASSWORD=password
+      - STATS_SERVER_URL=http://stats-server:9090
+    depends_on:
+      main-db:
+        condition: service_healthy
+      stats-server:
+        condition: service_started
