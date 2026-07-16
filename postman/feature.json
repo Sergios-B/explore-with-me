@@ -1,0 +1,126 @@
+{
+  "info": {
+    "name": "EWM - Subscriptions Feature Tests",
+    "schema": "https://getpostman.com"
+  },
+  "item": [
+    {
+      "name": "Создать пользователя 1 (Подписчик)",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Subscriber User\",\n  \"email\": \"sub@ewm.ru\"\n}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": { "raw": "http://localhost:8080/admin/users", "protocol": "http", "host": ["localhost"], "port": "8080", "path": ["admin", "users"] }
+      }
+    },
+    {
+      "name": "Создать пользователя 2 (Организатор)",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Promoter User\",\n  \"email\": \"promoter@ewm.ru\"\n}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": { "raw": "http://localhost:8080/admin/users", "protocol": "http", "host": ["localhost"], "port": "8080", "path": ["admin", "users"] }
+      }
+    },
+    {
+      "name": "Успешное добавление подписки (201 Created)",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/users/1/subscriptions/2",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["users", "1", "subscriptions", "2"]
+        }
+      }
+    },
+    {
+      "name": "Ошибка: Повторная подписка (409 Conflict)",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/users/1/subscriptions/2",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["users", "1", "subscriptions", "2"]
+        }
+      }
+    },
+    {
+      "name": "Ошибка: Подписка на самого себя (409 Conflict)",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/users/1/subscriptions/1",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["users", "1", "subscriptions", "1"]
+        }
+      }
+    },
+    {
+      "name": "Получить список подписок пользователя (200 OK)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/users/1/subscriptions?from=0&size=10",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["users", "1", "subscriptions"],
+          "query": [
+            { "key": "from", "value": "0" },
+            { "key": "size", "value": "10" }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Получить ленту новостей по подпискам (200 OK)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/users/1/events/subscriptions/feed?from=0&size=10",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["users", "1", "events", "subscriptions", "feed"],
+          "query": [
+            { "key": "from", "value": "0" },
+            { "key": "size", "value": "10" }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Успешное удаление подписки (204 No Content)",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/users/1/subscriptions/2",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["users", "1", "subscriptions", "2"]
+        }
+      }
+    }
+  ]
+}

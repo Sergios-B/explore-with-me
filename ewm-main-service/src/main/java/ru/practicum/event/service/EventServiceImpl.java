@@ -23,6 +23,7 @@ import ru.practicum.event.repository.EventRepository;
 import ru.practicum.event.repository.EventSpecification;
 import ru.practicum.exception.ConflictException;
 import ru.practicum.exception.NotFoundException;
+import ru.practicum.subscription.repository.SubscriptionRepository;
 import ru.practicum.user.model.User;
 import ru.practicum.user.repository.UserRepository;
 
@@ -40,6 +41,7 @@ public class EventServiceImpl implements EventService {
     private final UserRepository userRepository;
     private final CategoryRepository categoryRepository;
     private final StatsClient statsClient;
+    private final SubscriptionRepository subscriptionRepository;
 
     @Override
     @Transactional
@@ -262,5 +264,40 @@ public class EventServiceImpl implements EventService {
         } else if (action == StateAction.CANCEL_REVIEW) {
             event.setState(State.CANCELED);
         }
+    }
+
+    @Override
+    public List<EventShortDto> getSubscriptionFeed(Long userId, int from, int size) {
+        log.info("Получение ленты событий для пользователя {} (from={}, size={})", userId, from, size);
+
+        if (!userRepository.existsById(userId)) {
+            throw new NotFoundException("Пользователь с id=" + userId + " не найден");
+        }
+
+        org.springframework.data.domain.Pageable wholePage = org.springframework.data.domain.PageRequest.of(0, Integer.MAX_VALUE);
+        List<Long> promoterIds = subscriptionRepository.findAllBySubscriberId(userId, wholePage).stream()
+                .map(sub -> sub.getPromoter().getId())
+                .collect(Collectors.toList());
+
+        if (promoterIds.isEmpty()) {
+            return List.of();
+        }
+
+        org.springframework.data.domain.Pageable pageable = org.springframework.data.domain.PageRequest.of(
+                from / size,
+                size,
+                org.springframework.data.domain.Sort.by("eventDate").ascending()
+        );
+
+        List<Event> events = eventRepository.findAllByInitiatorIdInAndStateAndEventDateAfter(
+                promoterIds,
+                State.PUBLISHED,
+                LocalDateTime.now(),
+                pageable
+        );
+
+        return events.stream()
+                .map(EventMapper::toEventShortDto)
+                .collect(Collectors.toList());
     }
 }
