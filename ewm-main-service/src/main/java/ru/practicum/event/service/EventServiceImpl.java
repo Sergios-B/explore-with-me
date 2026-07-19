@@ -274,7 +274,7 @@ public class EventServiceImpl implements EventService {
             throw new NotFoundException("Пользователь с id=" + userId + " не найден");
         }
 
-        org.springframework.data.domain.Pageable wholePage = org.springframework.data.domain.PageRequest.of(0, Integer.MAX_VALUE);
+        Pageable wholePage = PageRequest.of(0, Integer.MAX_VALUE);
         List<Long> promoterIds = subscriptionRepository.findAllBySubscriberId(userId, wholePage).stream()
                 .map(sub -> sub.getPromoter().getId())
                 .collect(Collectors.toList());
@@ -283,11 +283,7 @@ public class EventServiceImpl implements EventService {
             return List.of();
         }
 
-        org.springframework.data.domain.Pageable pageable = org.springframework.data.domain.PageRequest.of(
-                from / size,
-                size,
-                org.springframework.data.domain.Sort.by("eventDate").ascending()
-        );
+        Pageable pageable = PageRequest.of(from / size, size, Sort.by("eventDate").ascending());
 
         List<Event> events = eventRepository.findAllByInitiatorIdInAndStateAndEventDateAfter(
                 promoterIds,

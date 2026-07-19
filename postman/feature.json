@@ -1,7 +1,7 @@
 {
   "info": {
     "name": "EWM - Subscriptions Feature Tests",
-    "schema": "https://getpostman.com"
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
     {
@@ -12,9 +12,24 @@
         "body": {
           "mode": "raw",
           "raw": "{\n  \"name\": \"Subscriber User\",\n  \"email\": \"sub@ewm.ru\"\n}",
-          "options": { "raw": { "language": "json" } }
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
         },
-        "url": { "raw": "http://localhost:8080/admin/users", "protocol": "http", "host": ["localhost"], "port": "8080", "path": ["admin", "users"] }
+        "url": {
+          "raw": "http://localhost:8080/admin/users",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "admin",
+            "users"
+          ]
+        }
       }
     },
     {
@@ -25,9 +40,24 @@
         "body": {
           "mode": "raw",
           "raw": "{\n  \"name\": \"Promoter User\",\n  \"email\": \"promoter@ewm.ru\"\n}",
-          "options": { "raw": { "language": "json" } }
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
         },
-        "url": { "raw": "http://localhost:8080/admin/users", "protocol": "http", "host": ["localhost"], "port": "8080", "path": ["admin", "users"] }
+        "url": {
+          "raw": "http://localhost:8080/admin/users",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "admin",
+            "users"
+          ]
+        }
       }
     },
     {
@@ -38,9 +68,16 @@
         "url": {
           "raw": "http://localhost:8080/users/1/subscriptions/2",
           "protocol": "http",
-          "host": ["localhost"],
+          "host": [
+            "localhost"
+          ],
           "port": "8080",
-          "path": ["users", "1", "subscriptions", "2"]
+          "path": [
+            "users",
+            "1",
+            "subscriptions",
+            "2"
+          ]
         }
       }
     },
@@ -52,9 +89,16 @@
         "url": {
           "raw": "http://localhost:8080/users/1/subscriptions/2",
           "protocol": "http",
-          "host": ["localhost"],
+          "host": [
+            "localhost"
+          ],
           "port": "8080",
-          "path": ["users", "1", "subscriptions", "2"]
+          "path": [
+            "users",
+            "1",
+            "subscriptions",
+            "2"
+          ]
         }
       }
     },
@@ -66,9 +110,16 @@
         "url": {
           "raw": "http://localhost:8080/users/1/subscriptions/1",
           "protocol": "http",
-          "host": ["localhost"],
+          "host": [
+            "localhost"
+          ],
           "port": "8080",
-          "path": ["users", "1", "subscriptions", "1"]
+          "path": [
+            "users",
+            "1",
+            "subscriptions",
+            "1"
+          ]
         }
       }
     },
@@ -80,12 +131,24 @@
         "url": {
           "raw": "http://localhost:8080/users/1/subscriptions?from=0&size=10",
           "protocol": "http",
-          "host": ["localhost"],
+          "host": [
+            "localhost"
+          ],
           "port": "8080",
-          "path": ["users", "1", "subscriptions"],
+          "path": [
+            "users",
+            "1",
+            "subscriptions"
+          ],
           "query": [
-            { "key": "from", "value": "0" },
-            { "key": "size", "value": "10" }
+            {
+              "key": "from",
+              "value": "0"
+            },
+            {
+              "key": "size",
+              "value": "10"
+            }
           ]
         }
       }
@@ -98,12 +161,26 @@
         "url": {
           "raw": "http://localhost:8080/users/1/events/subscriptions/feed?from=0&size=10",
           "protocol": "http",
-          "host": ["localhost"],
+          "host": [
+            "localhost"
+          ],
           "port": "8080",
-          "path": ["users", "1", "events", "subscriptions", "feed"],
+          "path": [
+            "users",
+            "1",
+            "events",
+            "subscriptions",
+            "feed"
+          ],
           "query": [
-            { "key": "from", "value": "0" },
-            { "key": "size", "value": "10" }
+            {
+              "key": "from",
+              "value": "0"
+            },
+            {
+              "key": "size",
+              "value": "10"
+            }
           ]
         }
       }
@@ -116,9 +193,16 @@
         "url": {
           "raw": "http://localhost:8080/users/1/subscriptions/2",
           "protocol": "http",
-          "host": ["localhost"],
+          "host": [
+            "localhost"
+          ],
           "port": "8080",
-          "path": ["users", "1", "subscriptions", "2"]
+          "path": [
+            "users",
+            "1",
+            "subscriptions",
+            "2"
+          ]
         }
       }
     }
