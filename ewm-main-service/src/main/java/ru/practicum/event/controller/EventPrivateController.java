@@ -79,4 +79,12 @@ public class EventPrivateController {
         return requestService.updateRequestStatus(userId, eventId, request);
     }
 
+    @GetMapping("/subscriptions/feed")
+    public List<EventShortDto> getSubscriptionFeed(
+            @PathVariable Long userId,
+            @RequestParam(defaultValue = "0") @PositiveOrZero int from,
+            @RequestParam(defaultValue = "10") @Positive int size) {
+        log.info("HTTP GET: Получение ленты новостей для пользователя {} (from={}, size={})", userId, from, size);
+        return eventService.getSubscriptionFeed(userId, from, size);
+    }
 }

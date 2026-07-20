@@ -4,6 +4,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import ru.practicum.event.dto.*;
 import ru.practicum.event.model.EventSort;
 import ru.practicum.event.model.State;
+import ru.practicum.event.dto.EventShortDto;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -28,4 +29,6 @@ public interface EventService {
                                         HttpServletRequest request);
 
     EventFullDto getPublicEventById(Long eventId, HttpServletRequest request);
+
+    List<EventShortDto> getSubscriptionFeed(Long userId, int from, int size);
 }
